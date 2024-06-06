@@ -6,6 +6,10 @@
 *
 * @version 2024-May-14 initial version
 */
+
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+
 const mysql = require('mysql');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -69,5 +73,17 @@ class LoginDatabase {
             throw err; // Re-throw the error to handle it in the caller
         }
     }
+
+	// Configure session middleware to store session data in MySQL
+	const sessionStore = new MySQLStore({
+    createDatabaseTable: true,
+    schema: {
+        tableName: 'sessions'
+    },
+    expiration: 86400000, // Session expires after 24 hours (in milliseconds)
+    clearExpired: true // Automatically clear expired sessions
+	}, this.connection);
+
+
 }
 module.exports = new LoginDatabase();
